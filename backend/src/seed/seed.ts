@@ -27,20 +27,34 @@ const ROLES: { email: string; name: string; role: string }[] = [
 export async function seedDatabase() {
   logger.info("Seeding database...");
 
-  await Promise.all([
-    User.deleteMany({}),
-    Cluster.deleteMany({}),
-    NodeModel.deleteMany({}),
-    Deployment.deleteMany({}),
-    Pod.deleteMany({}),
-  ]);
+ await Promise.all([
+  Cluster.deleteMany({}),
+  NodeModel.deleteMany({}),
+  Deployment.deleteMany({}),
+  Pod.deleteMany({}),
+]);
 
   const orgId = new Types.ObjectId();
-  const passwordHash = await hashPassword("password123");
+const passwordHash = await hashPassword("password123");
 
-  for (const u of ROLES) {
-    await User.create({ orgId, email: u.email, passwordHash, name: u.name, role: u.role });
-  }
+for (const u of ROLES) {
+  await User.findOneAndUpdate(
+    { email: u.email },
+    {
+      $set: {
+        orgId,
+        email: u.email,
+        passwordHash,
+        name: u.name,
+        role: u.role,
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+    }
+  );
+}
 
   const clusterSpecs = [
     { name: "prod-us-east", provider: "eks", region: "us-east-1", environment: "production" },
