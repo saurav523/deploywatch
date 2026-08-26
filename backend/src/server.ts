@@ -6,22 +6,28 @@ import { env } from "./config/env";
 import { logger } from "./utils/logger";
 import { startSimulatorJob } from "./jobs/simulator.job";
 import { User } from "./models/User";
+import { seedDatabase } from "./seed/seed";
 
 async function main() {
   await connectDb();
+
+  // Automatically create demo data if the database is empty.
+  let anyUser = await User.findOne();
+
+  if (!anyUser) {
+    logger.info("No users found — seeding demo data...");
+    await seedDatabase();
+    anyUser = await User.findOne();
+  }
 
   const app = createApp();
   const httpServer = http.createServer(app);
   initSockets(httpServer);
 
-  // Single-org demo: discover the seeded org and start the cluster
-  // simulator for it. In production this loop would instead start one
-  // ingestion worker per registered cluster (ARCHITECTURE.md §3.3).
-  const anyUser = await User.findOne();
   if (anyUser) {
     startSimulatorJob(anyUser.orgId);
   } else {
-    logger.warn("No seeded org found — run `npm run seed` to populate demo data and enable live updates");
+    logger.error("No user found after seeding");
   }
 
   httpServer.listen(env.port, () => {
