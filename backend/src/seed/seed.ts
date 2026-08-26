@@ -24,8 +24,7 @@ const ROLES: { email: string; name: string; role: string }[] = [
   { email: "exec@deploywatch.dev", name: "Alex (VP Engineering)", role: "executive" },
 ];
 
-async function seed() {
-  await mongoose.connect(env.mongoUri);
+export async function seedDatabase() {
   logger.info("Seeding database...");
 
   await Promise.all([
@@ -117,10 +116,19 @@ async function seed() {
   }
 
   logger.info(
-    { orgId: orgId.toString() },
-    "Seed complete. Demo logins: platform@deploywatch.dev / password123 (any role email above, same password)"
-  );
-  await mongoose.disconnect();
+  { orgId: orgId.toString() },
+  "Seed complete. Demo logins: platform@deploywatch.dev / password123 (any role email above, same password)"
+);
+}
+
+async function seed() {
+  await mongoose.connect(env.mongoUri);
+
+  try {
+    await seedDatabase();
+  } finally {
+    await mongoose.disconnect();
+  }
 }
 
 seed().catch((err) => {
