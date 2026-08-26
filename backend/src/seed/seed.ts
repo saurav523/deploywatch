@@ -27,13 +27,12 @@ const ROLES: { email: string; name: string; role: string }[] = [
 export async function seedDatabase() {
   logger.info("Seeding database...");
 
- await Promise.all([
-  Cluster.deleteMany({}),
-  NodeModel.deleteMany({}),
-  Deployment.deleteMany({}),
-  Pod.deleteMany({}),
-]);
-
+ await User.deleteMany({});
+await Cluster.deleteMany({});
+await NodeModel.deleteMany({});
+await Deployment.deleteMany({});
+await Pod.deleteMany({});
+  
   const orgId = new Types.ObjectId();
 const passwordHash = await hashPassword("password123");
 
