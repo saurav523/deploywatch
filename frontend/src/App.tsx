@@ -1,3 +1,4 @@
+import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Layout } from "./components/Layout";
@@ -8,7 +9,7 @@ import { ClusterDetailPage } from "./pages/ClusterDetailPage";
 import { DeploymentDetailPage } from "./pages/DeploymentDetailPage";
 import { IncidentsPage } from "./pages/IncidentsPage";
 
-function ProtectedRoute({ children }: { children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: React.ReactElement }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="flex h-screen items-center justify-center text-slate-500">Loading…</div>;
   if (!user) return <Navigate to="/login" replace />;
