@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, HydratedDocument } from "mongoose";
 import { Cluster } from "../models/Cluster";
 import { NodeModel } from "../models/Node";
 import { Deployment } from "../models/Deployment";
@@ -23,7 +23,7 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function tickPod(pod: IPod) {
+async function tickPod(pod: HydratedDocument<IPod>) {
   const roll = Math.random();
 
   // Small chance of a new failure condition; higher chance of recovery
