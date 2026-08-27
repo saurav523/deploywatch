@@ -1,18 +1,9 @@
-import { io, Socket } from "socket.io-client";
-
-let socket: Socket | null = null;
+import { Socket } from "socket.io-client";
 
 export function getSocket(): Socket | null {
-  const token = localStorage.getItem("dw_access_token");
-  if (!token) return null;
-  if (socket) return socket;
-
-  const base = import.meta.env.VITE_API_URL ?? window.location.origin;
-  socket = io(base, { auth: { token }, transports: ["websocket"] });
-  return socket;
+  return null;
 }
 
 export function disconnectSocket() {
-  socket?.disconnect();
-  socket = null;
+  // Demo mode: no backend socket connection.
 }
