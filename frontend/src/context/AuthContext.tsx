@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { api } from "../lib/api";
 import { disconnectSocket } from "../lib/socket";
 import { User } from "../types";
 
@@ -10,6 +9,14 @@ interface AuthContextValue {
   logout: () => void;
 }
 
+const DEMO_USER: User = {
+  id: "demo-user-1",
+  email: "platform@deploywatch.dev",
+  name: "Priya (Platform Engineer)",
+  role: "platform_engineer",
+  orgId: "demo-org-1",
+};
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -17,32 +24,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("dw_access_token");
-    if (!token) {
-      setLoading(false);
-      return;
+    const demoLoggedIn = localStorage.getItem("dw_demo_logged_in");
+
+    if (demoLoggedIn === "true") {
+      setUser(DEMO_USER);
     }
-    api
-      .get("/auth/me")
-      .then((res) => setUser(res.data.data))
-      .catch(() => {
-        localStorage.removeItem("dw_access_token");
-        localStorage.removeItem("dw_refresh_token");
-      })
-      .finally(() => setLoading(false));
+
+    setLoading(false);
   }, []);
 
   async function login(email: string, password: string) {
-    const res = await api.post("/auth/login", { email, password });
-    const { accessToken, refreshToken, user: loggedInUser } = res.data.data;
-    localStorage.setItem("dw_access_token", accessToken);
-    localStorage.setItem("dw_refresh_token", refreshToken);
-    setUser(loggedInUser);
+    // Demo-only authentication.
+    // No backend or database is required.
+    if (!email || !password) {
+      throw new Error("Email and password are required");
+    }
+
+    localStorage.setItem("dw_demo_logged_in", "true");
+    localStorage.setItem("dw_access_token", "demo-access-token");
+
+    setUser({
+      ...DEMO_USER,
+      email,
+    });
   }
 
   function logout() {
+    localStorage.removeItem("dw_demo_logged_in");
     localStorage.removeItem("dw_access_token");
     localStorage.removeItem("dw_refresh_token");
+
     disconnectSocket();
     setUser(null);
   }
@@ -56,6 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+
+  if (!ctx) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+
   return ctx;
 }
