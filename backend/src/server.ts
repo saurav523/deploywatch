@@ -1,12 +1,12 @@
-import { Types } from "mongoose";
-import { User } from "../models/User";
-import { Cluster } from "../models/Cluster";
-import { NodeModel } from "../models/Node";
-import { Deployment } from "../models/Deployment";
-import { Pod } from "../models/Pod";
-import { hashPassword } from "../services/authService";
-import { logger } from "../utils/logger";
-
+import http from "http";
+import { createApp } from "./app";
+import { connectDb } from "./config/db";
+import { initSockets } from "./sockets";
+import { env } from "./config/env";
+import { logger } from "./utils/logger";
+import { startSimulatorJob } from "./jobs/simulator.job";
+import { User } from "./models/User";
+import { seedDatabase } from "./seed/seed";
 const DEMO_SERVICES = [
   "checkout-service",
   "payments-api",
