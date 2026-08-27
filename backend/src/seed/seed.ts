@@ -134,17 +134,3 @@ for (const u of ROLES) {
 );
 }
 
-async function seed() {
-  await mongoose.connect(env.mongoUri);
-
-  try {
-    await seedDatabase();
-  } finally {
-    await mongoose.disconnect();
-  }
-}
-
-seed().catch((err) => {
-  logger.error({ err }, "Seed failed");
-  process.exit(1);
-});
